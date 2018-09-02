@@ -53,7 +53,7 @@
             <div class="input-group">
               <input type="text" name="search" class="form-control" placeholder="Search text" v-bind:value="search" autofocus>
               <span class="input-group-btn">
-                <button class="btn btn-default" type="button">   
+                <button class="btn btn-default" type="button">
                 <span class="glyphicon glyphicon-search"></span>
               </button>
               </span>
@@ -97,16 +97,23 @@
             </td>
           </tr>
           <tr>
+            <th>thumbnail</th>
             <th>Name</th>
             <th>Size</th>
             <th class="hidden-xs">
               <span style="cursor: pointer" v-on:click='mtimeTypeFromNow = !mtimeTypeFromNow'>ModTime</span>
             </th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="f in computedFiles">
+            <td>
+              <template v-if="f.type == 'file'">
+                <a v-on:click='clickFileOrDir(f, $event)' href="/{{f.path + (f.type == 'dir' ? '' : '')}}">
+                  <img src="/{{f.path}}" width="200" height="100"/>
+                </a>
+              </template>
+            </td>
             <td>
               <a v-on:click='clickFileOrDir(f, $event)' href="/{{f.path + (f.type == 'dir' ? '' : '')}}">
                 <!-- ?raw=false -->
@@ -115,36 +122,6 @@
             </td>
             <td><span v-if="f.type == 'dir'">~</span> {{f.size | formatBytes}}</td>
             <td class="hidden-xs">{{formatTime(f.mtime)}}</td>
-            <td style="text-align: left">
-              <template v-if="f.type == 'dir'">
-                <a class="btn btn-default btn-xs" href="/-/zip/{{f.path}}">
-                  <span class="hidden-xs">Archive</span> Zip
-                  <span class="glyphicon glyphicon-download-alt"></span>
-                </a>
-              </template>
-              <template v-if="f.type == 'file'">
-                <a class="btn btn-default btn-xs hidden-xs" href="/{{f.path}}?download=true">
-                  <span class="hidden-xs">Download</span>
-                  <span class="glyphicon glyphicon-download-alt"></span>
-                </a>
-                <button class="btn btn-default btn-xs bstooltip" data-trigger="manual" data-title="Copied!" data-clipboard-text="{{genDownloadURL(f)}}">
-                  <i class="fa fa-copy"></i>
-                </button>
-                <button class="btn btn-default btn-xs" v-on:click="showInfo(f)">
-                  <span class="glyphicon glyphicon-info-sign"></span>
-                </button>
-                <button class="btn btn-default btn-xs hidden-xs" v-on:click="genQrcode(f.name)">
-                  <span v-if="shouldHaveQrcode(f.name)">QRCode</span>
-                  <span class="glyphicon glyphicon-qrcode"></span>
-                </button>
-                <a class="btn btn-default btn-xs visible-xs" v-if="shouldHaveQrcode(f.name)" href="{{genInstallURL(f.name)}}">
-                  Install <i class="fa fa-cube"></i>
-                </a>
-                <button class="btn btn-default btn-xs" v-if="auth.delete" v-on:click="deletePathConfirm(f, $event)">
-                  <span style="color:#CC3300" class="glyphicon glyphicon-trash"></span>
-                </button>
-              </template>
-            </td>
           </tr>
         </tbody>
       </table>
