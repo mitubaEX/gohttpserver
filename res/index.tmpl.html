@@ -109,13 +109,13 @@
           <tr v-for="f in computedFiles">
             <td>
               <template v-if="f.type == 'file'">
-                <a v-on:click='clickFileOrDir(f, $event)' href="/{{f.path + (f.type == 'dir' ? '' : '')}}">
+                <a v-on:click='clickFileOrDir(f, $event)' target="_brank" href="/{{f.path + (f.type == 'dir' ? '' : '')}}">
                   <img src="/{{f.path}}" width="200" height="100"/>
                 </a>
               </template>
             </td>
             <td>
-              <a v-on:click='clickFileOrDir(f, $event)' href="/{{f.path + (f.type == 'dir' ? '' : '')}}">
+              <a v-on:click='clickFileOrDir(f, $event)' target="_brank" href="/{{f.path + (f.type == 'dir' ? '' : '')}}">
                 <!-- ?raw=false -->
                 <i style="padding-right: 0.5em" class="fa" v-bind:class='genFileClass(f)'></i> {{f.name}}
               </a>
