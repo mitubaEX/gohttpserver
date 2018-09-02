@@ -457,9 +457,9 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 
 	if search != "" {
 		results := s.findIndex(search)
-		if len(results) > 500 { // max 50
-			results = results[:500]
-		}
+		// if len(results) > 2000 { // max 50
+		// 	results = results[:2000]
+		// }
 		for _, item := range results {
 			if filepath.HasPrefix(item.Path, requestPath) {
 				fileInfoMap[item.Path] = item.Info
