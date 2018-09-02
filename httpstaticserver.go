@@ -457,8 +457,8 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 
 	if search != "" {
 		results := s.findIndex(search)
-		if len(results) > 50 { // max 50
-			results = results[:50]
+		if len(results) > 500 { // max 50
+			results = results[:500]
 		}
 		for _, item := range results {
 			if filepath.HasPrefix(item.Path, requestPath) {
@@ -495,11 +495,12 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 			lr.Name = filepath.ToSlash(name) // fix for windows
 		}
 		if info.IsDir() {
-			name := deepPath(localPath, info.Name())
-			lr.Name = name
-			lr.Path = filepath.Join(filepath.Dir(path), name)
+			// name := deepPath(localPath, info.Name())
+			lr.Name = info.Name()
+			lr.Path = filepath.Join(filepath.Dir(path), info.Name())
 			lr.Type = "dir"
 			lr.Size = s.historyDirSize(lr.Path)
+			// lr.Size = 0
 		} else {
 			lr.Type = "file"
 			lr.Size = info.Size() // formatSize(info)
