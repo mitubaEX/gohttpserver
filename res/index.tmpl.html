@@ -103,6 +103,7 @@
             <th class="hidden-xs">
               <span style="cursor: pointer" v-on:click='mtimeTypeFromNow = !mtimeTypeFromNow'>ModTime</span>
             </th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -122,6 +123,9 @@
             </td>
             <td><span v-if="f.type == 'dir'">~</span> {{f.size | formatBytes}}</td>
             <td class="hidden-xs">{{formatTime(f.mtime)}}</td>
+            <td>
+              <button v-on:click='clickTweetButton(f, $event)' class="btn btn-primary">Tweet</button>
+            </td>
           </tr>
         </tbody>
       </table>

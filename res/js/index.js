@@ -212,6 +212,19 @@ var vm = new Vue({
       loadFileOrDir(reqPath);
       e.preventDefault()
     },
+    clickTweetButton: function(f, e) {
+      $.ajax({
+        url: pathJoin(["/-/media", location.pathname, f.name]),
+        method: "GET",
+        dataType: 'json',
+      }).done(function(data) {
+        console.log(data)
+        // const url = window.encodeURIComponent(data.mediaUrl)
+        // const text = window.encodeURIComponent("")
+        // window.open(`https://twitter.com/share?text=` + text + `&url=` + url);
+      })
+      e.preventDefault()
+    },
     changePath: function(reqPath, e) {
       loadFileOrDir(reqPath);
       e.preventDefault()

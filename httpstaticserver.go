@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -17,6 +18,7 @@ import (
 
 	"regexp"
 
+	"github.com/ChimeraCoder/anaconda"
 	"github.com/go-yaml/yaml"
 	"github.com/gorilla/mux"
 	"github.com/shogo82148/androidbinary/apk"
@@ -82,6 +84,7 @@ func NewHTTPStaticServer(root string) *HTTPStaticServer {
 	m.HandleFunc("/-/zip/{path:.*}", s.hZip)
 	m.HandleFunc("/-/unzip/{zip_path:.*}/-/{path:.*}", s.hUnzip)
 	m.HandleFunc("/-/json/{path:.*}", s.hJSONList)
+	m.HandleFunc("/-/media/{path:.*}", s.GetMediaUrl)
 	// routers for Apple *.ipa
 	m.HandleFunc("/-/ipa/plist/{path:.*}", s.hPlist)
 	m.HandleFunc("/-/ipa/link/{path:.*}", s.hIpaLink)
@@ -514,6 +517,57 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+type ResponseMessage struct {
+	MediaUrl string `json:"mediaUrl"`
+}
+
+func (s *HTTPStaticServer) GetMediaUrl(w http.ResponseWriter, r *http.Request) {
+	requestPath := mux.Vars(r)["path"]
+	localPath := filepath.Join(s.Root, requestPath)
+
+	api := anaconda.NewTwitterApiWithCredentials(
+		os.Getenv("ACCESS_TOKEN"),
+		os.Getenv("ACCESS_TOKEN_SECRET"),
+		os.Getenv("CONSUMER_KEY"),
+		os.Getenv("CONSUMER_SECRET"))
+
+	file, err := os.Open(localPath)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer file.Close()
+
+	file_data, _ := ioutil.ReadAll(file)
+	imgEnc := base64.StdEncoding.EncodeToString(file_data)
+
+	media, err := api.UploadMedia(imgEnc)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	v := url.Values{}
+	v.Set("media_ids", media.MediaIDString)
+	tweet, err := api.PostTweet("", v)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	httpsUrl := strings.Replace(tweet.Entities.Media[0].Media_url, "http://", "https://", -1)
+
+	data, _ := json.Marshal(map[string]interface{}{
+		"mediaUrl": httpsUrl,
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+
 }
 
 var dirSizeMap = make(map[string]int64)
